@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
-namespace TwitchButler
+namespace TwitchChatBot
 {
     public class TwitchBot
     {
@@ -53,41 +55,50 @@ namespace TwitchButler
             while (true)
             {
                 // PERFORM TWITCH PLAYS TASK HERE
-                if(enteredCommands.Count > 0)
+                if (enteredCommands.Count > 0)
                 {
                     PossibleCommands nextCommand = enteredCommands.Dequeue();
                     Console.WriteLine("COMMAND " + nextCommand.ToString() + " WAS ISSUED");
                     switch (nextCommand)
                     {
                         case PossibleCommands.A:
-                            
+                            SendKeyboard("{A}");
                             break;
 
                         case PossibleCommands.B:
+                            SendKeyboard("{B}");
                             break;
 
                         case PossibleCommands.Down:
+                            SendKeyboard("{DOWN}");
                             break;
 
                         case PossibleCommands.L:
+                            SendKeyboard("{L}");
                             break;
 
                         case PossibleCommands.Left:
+                            SendKeyboard("{LEFT}");
                             break;
 
                         case PossibleCommands.R:
+                            SendKeyboard("{R}");
                             break;
 
                         case PossibleCommands.Right:
+                            SendKeyboard("{RIGHT}");
                             break;
 
                         case PossibleCommands.Select:
+                            SendKeyboard("{G}");
                             break;
 
                         case PossibleCommands.Start:
+                            SendKeyboard("{ENTER}");
                             break;
 
                         case PossibleCommands.Up:
+                            SendKeyboard("{UP}");
                             break;
                     }
 
@@ -100,12 +111,12 @@ namespace TwitchButler
 
 
                 string line = await streamReader.ReadLineAsync();
-                if(line != null && line != string.Empty)
+                if (line != null && line != string.Empty)
                 {
                     Console.WriteLine(line);
 
-                    string[] split = line.Split(" ");
-                    //PING :tmi.twitch.tv
+                    string[] split = line.Split(' ');
+                    //PING :tmi.twitch.tv 
                     //Respond with PONG :tmi.twitch.tv
                     if (line.StartsWith("PING"))
                     {
@@ -133,11 +144,11 @@ namespace TwitchButler
                         });
                     }
                 }
-                
+
             }
         }
 
-        public async Task SendChatMessage(string channel, string message)
+        public async Task SendMessage(string channel, string message)
         {
             await connected.Task;
             await streamWriter.WriteLineAsync($"PRIVMSG #{channel} :{message}");
@@ -149,10 +160,6 @@ namespace TwitchButler
             await streamWriter.WriteLineAsync($"JOIN #{channel}");
         }
 
-
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, IntPtr lParam);
 
         [DllImport("user32.dll")]
         private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
