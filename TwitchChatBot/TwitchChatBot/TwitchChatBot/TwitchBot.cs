@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Interceptor;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -62,43 +63,43 @@ namespace TwitchChatBot
                     switch (nextCommand)
                     {
                         case PossibleCommands.A:
-                            SendKeyboard("{A}");
+                            SendKeyboard(Interceptor.Keys.Y);
                             break;
 
                         case PossibleCommands.B:
-                            SendKeyboard("{B}");
+                            SendKeyboard(Interceptor.Keys.X);
                             break;
 
                         case PossibleCommands.Down:
-                            SendKeyboard("{DOWN}");
+                            SendKeyboard(Interceptor.Keys.Down);
                             break;
 
                         case PossibleCommands.L:
-                            SendKeyboard("{L}");
+                            SendKeyboard(Interceptor.Keys.A);
                             break;
 
                         case PossibleCommands.Left:
-                            SendKeyboard("{LEFT}");
+                            SendKeyboard(Interceptor.Keys.Left);
                             break;
 
                         case PossibleCommands.R:
-                            SendKeyboard("{R}");
+                            SendKeyboard(Interceptor.Keys.S);
                             break;
 
                         case PossibleCommands.Right:
-                            SendKeyboard("{RIGHT}");
+                            SendKeyboard(Interceptor.Keys.Right);
                             break;
 
                         case PossibleCommands.Select:
-                            SendKeyboard("{G}");
+                            SendKeyboard(Interceptor.Keys.Backspace);
                             break;
 
                         case PossibleCommands.Start:
-                            SendKeyboard("{ENTER}");
+                            SendKeyboard(Interceptor.Keys.Enter);
                             break;
 
                         case PossibleCommands.Up:
-                            SendKeyboard("{UP}");
+                            SendKeyboard(Interceptor.Keys.Up);
                             break;
                     }
 
@@ -167,7 +168,7 @@ namespace TwitchChatBot
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-        public void SendKeyboard(string command)
+        public void FocusEmulator()
         {
             IntPtr zero = IntPtr.Zero;
             for (int i = 0; (i < 60) && (zero == IntPtr.Zero); i++)
@@ -178,8 +179,27 @@ namespace TwitchChatBot
             if (zero != IntPtr.Zero)
             {
                 SetForegroundWindow(zero);
-                SendKeys.Send(command);
+                
             }
+        }
+        
+        public void SendKeyboard(Interceptor.Keys key)
+        {
+            FocusEmulator();
+
+            Input input = new Input();
+
+            // Be sure to set your keyboard filter to be able to capture key presses and simulate key presses
+            // KeyboardFilterMode.All captures all events; 'Down' only captures presses for non-special keys; 'Up' only captures releases for non-special keys; 'E0' and 'E1' capture presses/releases for special keys
+            input.KeyboardFilterMode = KeyboardFilterMode.All;
+            // You can set a MouseFilterMode as well, but you don't need to set a MouseFilterMode to simulate mouse clicks
+
+            // Finally, load the driver
+            input.Load();
+
+            input.SendKeys(key);
+
+            input.Unload();
         }
     }
 }
